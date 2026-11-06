@@ -7,6 +7,7 @@ const NAV = [
   { to: '/targets', label: 'Targets', icon: 'target' },
   { to: '/changes', label: 'Changes', icon: 'changes' },
   { to: '/assets', label: 'Assets', icon: 'assets' },
+  { to: '/invariants', label: 'Invariants', icon: 'invariant' },
   { to: '/findings', label: 'Findings', icon: 'findings' },
   { to: '/reports', label: 'Reports', icon: 'reports' },
 ];
@@ -15,6 +16,7 @@ const CRUMBS = [
   ['/targets', 'Targets'],
   ['/changes', 'Commit review'],
   ['/assets', 'Asset inventory'],
+  ['/invariants', 'Invariants'],
   ['/findings', 'Findings'],
   ['/reports', 'Reports'],
 ];

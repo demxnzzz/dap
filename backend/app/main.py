@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from .db import Base, engine, wait_for_db
-from .routers import assets, changes, findings, reports, targets, workspace
+from .routers import assets, changes, findings, invariants, reports, targets, workspace
 
 
 @asynccontextmanager
@@ -25,6 +25,7 @@ app = FastAPI(
 app.include_router(targets.router)
 app.include_router(changes.router)
 app.include_router(assets.router)
+app.include_router(invariants.router)
 app.include_router(findings.router)
 app.include_router(reports.router)
 app.include_router(workspace.router)

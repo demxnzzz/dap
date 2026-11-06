@@ -5,6 +5,7 @@ import Dashboard from './pages/Dashboard.jsx';
 import Targets from './pages/Targets.jsx';
 import Changes from './pages/Changes.jsx';
 import Assets from './pages/Assets.jsx';
+import Invariants from './pages/Invariants.jsx';
 import Findings from './pages/Findings.jsx';
 import Reports from './pages/Reports.jsx';
 import ReportBuilder from './pages/ReportBuilder.jsx';
@@ -33,6 +34,7 @@ export default function App() {
           <Route path="changes" element={<Changes />} />
           <Route path="changes/:commitId" element={<Changes />} />
           <Route path="assets" element={<Assets />} />
+          <Route path="invariants" element={<Invariants />} />
           <Route path="findings" element={<Findings />} />
           <Route path="reports" element={<Reports />} />
           <Route path="reports/new" element={<ReportBuilder />} />

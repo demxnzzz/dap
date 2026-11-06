@@ -7,6 +7,7 @@ from datetime import datetime, timedelta, timezone
 from sqlalchemy.orm import Session
 
 from .cvss import evaluate
+from .example_model import apply_example
 from .models import Asset, CommitRecord, Finding, Report, Repository
 from .reporting import build_markdown
 from .security import file_flags, risk_level
@@ -469,5 +470,6 @@ def load_demo(db: Session) -> tuple[Repository, bool]:
     _seed_report(
         db, repository, finding_ids[FINDINGS[0]["rule_id"]], FINDINGS[0]
     )
+    apply_example(db, repository)
     db.commit()
     return repository, True

@@ -41,6 +41,14 @@ const paths = {
       <path d="M14 3v5h4.5M10 12h5M10 16h5" />
     </>
   ),
+  invariant: (
+    <>
+      <circle cx="6" cy="7" r="2.4" />
+      <circle cx="18" cy="17" r="2.4" />
+      <path d="M8.4 7h5.6a3.2 3.2 0 0 1 3.2 3.2v4.2" />
+      <path d="M14.8 12.2 17.2 14.6 19.6 12.2" />
+    </>
+  ),
   plus: <path d="M12 5v14M5 12h14" />,
   refresh: (
     <>

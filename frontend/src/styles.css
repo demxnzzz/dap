@@ -1391,3 +1391,226 @@ table.table {
   .finding-card { flex-direction: column; }
   .finding-actions { justify-content: flex-start; }
 }
+
+/* ---------- invariants ---------- */
+.badge.ok {
+  color: #c9f7dc;
+  background: rgba(69, 212, 131, 0.12);
+  border-color: rgba(69, 212, 131, 0.35);
+}
+
+.invariant-row {
+  display: flex;
+  gap: 13px;
+  padding: 14px 16px;
+  border-bottom: 1px solid rgba(30, 40, 54, 0.7);
+  align-items: flex-start;
+}
+
+.invariant-row:last-child {
+  border-bottom: none;
+}
+
+.invariant-row:hover {
+  background: rgba(22, 31, 43, 0.4);
+}
+
+.rule {
+  display: inline-block;
+  align-self: flex-start;
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: #bfe9e2;
+  background: rgba(94, 234, 212, 0.06);
+  border: 1px solid rgba(94, 234, 212, 0.18);
+  border-radius: 6px;
+  padding: 3px 8px;
+}
+
+.trace {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.trace-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-family: var(--mono);
+  font-size: 11px;
+  border: 1px solid var(--border);
+  background: #0c1219;
+  border-radius: 6px;
+  padding: 2px 6px;
+  color: var(--muted);
+}
+
+.trace-step.violates {
+  border-color: rgba(255, 77, 98, 0.5);
+  background: rgba(255, 77, 98, 0.12);
+  color: #ffc9d0;
+}
+
+.trace-event {
+  color: var(--accent);
+}
+
+.trace-step.violates .trace-event {
+  color: #ffd9dd;
+}
+
+.trace-arrow {
+  color: var(--muted-2);
+}
+
+.trace-state {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: #d6e3f2;
+}
+
+.state-flow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 16px;
+}
+
+.state-chip {
+  border: 1px solid var(--border-strong);
+  background: #0d141d;
+  border-radius: 8px;
+  padding: 6px 9px;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.state-chip.initial {
+  border-color: rgba(87, 182, 255, 0.45);
+}
+
+.state-chip.terminal {
+  border-color: rgba(148, 167, 191, 0.45);
+}
+
+.state-name {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--text);
+}
+
+.state-meta {
+  font-size: 9.5px;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--muted-2);
+}
+
+.transition-list {
+  display: flex;
+  flex-direction: column;
+  border-top: 1px solid var(--border);
+}
+
+.transition-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-bottom: 1px solid rgba(30, 40, 54, 0.6);
+  font-family: var(--mono);
+  font-size: 11.5px;
+  flex-wrap: wrap;
+}
+
+.transition-row:last-child {
+  border-bottom: none;
+}
+
+.transition-row .ev {
+  color: var(--accent);
+}
+
+.transition-row .st {
+  color: #d6e3f2;
+}
+
+.transition-flag {
+  font-size: 9.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--high);
+  border: 1px solid rgba(255, 159, 69, 0.35);
+  border-radius: 5px;
+  padding: 0 5px;
+}
+
+.gap-row {
+  display: flex;
+  gap: 10px;
+  padding: 10px 16px;
+  border-bottom: 1px solid rgba(30, 40, 54, 0.6);
+  align-items: flex-start;
+}
+
+.gap-row:last-child {
+  border-bottom: none;
+}
+
+.interpret-box {
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 11px 13px;
+  background: rgba(17, 24, 33, 0.65);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.editor-scroll {
+  max-height: 34vh;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-right: 2px;
+}
+
+.editor-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 0.9fr) minmax(0, 0.9fr) 30px;
+  gap: 8px;
+  align-items: center;
+}
+
+.editor-row.transition {
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) auto 30px;
+}
+
+.editor-row .input,
+.editor-row .select {
+  padding: 7px 9px;
+  font-size: 12px;
+}
+
+.checkline {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+@media (max-width: 780px) {
+  .editor-row,
+  .editor-row.transition {
+    grid-template-columns: minmax(0, 1fr) 30px;
+  }
+  .invariant-row {
+    flex-direction: column;
+  }
+}

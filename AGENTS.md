@@ -27,13 +27,28 @@ Start: `docker compose -f docker-compose.base44.yml up -d --build`
   (`POST /api/cvss/evaluate`, report preview/save). Do not duplicate the formula client-side.
 - SARIF dedupe key = sha256(ruleId | file | line). Re-uploading a report increments
   `occurrences` instead of duplicating findings.
+- Invariant analysis (`backend/app/invariants.py`) is deterministic and bounded: a
+  phrase parser maps plain English onto four rule shapes, and a BFS over the declared
+  transition graph reports `violation`, `held` (no failing trace *inside the declared
+  model and depth*) or `inconclusive`. Never surface `held` as "secure".
+- The parser returns the rule it derived (`POST /api/models/{id}/interpret`) so an
+  analyst reviews the formalisation before activating it. Dangling references stay
+  visible as `dangling_rule` coverage gaps instead of being silently skipped.
+- A state model is per target and replaced wholesale by `PUT /api/models/{id}`; gaps
+  (unreachable states, dead ends, unmarked boundaries) are computed on read in
+  `coverage_gaps`, not stored.
+- Promoting a reproduced violation (`POST /api/invariants/{id}/promote`) writes a
+  normal `findings` row with `source=invariant`; triage and reporting are unchanged.
 
 ## Verification
 
 - `curl -s localhost:3000/api/health` → `{"status":"ok"}`
 - `curl -s -X POST localhost:3000/api/demo/load` seeds the demo target.
 - `curl -s localhost:3000/api/stats` → counts used by the dashboard.
-- UI routes: `/`, `/targets`, `/changes`, `/assets`, `/findings`, `/reports`, `/reports/new`.
+- UI routes: `/`, `/targets`, `/changes`, `/assets`, `/invariants`, `/findings`, `/reports`,
+  `/reports/new`.
+- Invariant example model: `POST /api/models/1/example` (idempotent, only fills an empty
+  model). `POST /api/models/1/analyze` should return 3 violations and 1 held on it.
 
 ## Sandbox quirks
 

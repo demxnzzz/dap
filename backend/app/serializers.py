@@ -1,6 +1,17 @@
 from __future__ import annotations
 
-from .models import Asset, CommitRecord, DiffFile, Finding, Report, Repository
+from .models import (
+    AnalysisRun,
+    Asset,
+    CommitRecord,
+    DiffFile,
+    Finding,
+    Invariant,
+    ModelState,
+    ModelTransition,
+    Report,
+    Repository,
+)
 
 
 def _iso(value):
@@ -95,6 +106,59 @@ def finding_out(finding: Finding, repo_name: str | None = None) -> dict:
         "occurrences": finding.occurrences,
         "created_at": _iso(finding.created_at),
         "updated_at": _iso(finding.updated_at),
+    }
+
+
+def state_out(state: ModelState) -> dict:
+    return {
+        "id": state.id,
+        "name": state.name,
+        "kind": state.kind,
+        "trust": state.trust,
+        "notes": state.notes,
+    }
+
+
+def transition_out(transition: ModelTransition) -> dict:
+    return {
+        "id": transition.id,
+        "event": transition.event,
+        "from_state": transition.from_state,
+        "to_state": transition.to_state,
+        "cross_boundary": transition.cross_boundary,
+        "notes": transition.notes,
+    }
+
+
+def invariant_out(invariant: Invariant) -> dict:
+    return {
+        "id": invariant.id,
+        "repository_id": invariant.repository_id,
+        "name": invariant.name,
+        "statement": invariant.statement,
+        "rule_type": invariant.rule_type,
+        "event": invariant.event,
+        "from_state": invariant.from_state,
+        "to_state": invariant.to_state,
+        "requires_event": invariant.requires_event,
+        "severity": invariant.severity,
+        "status": invariant.status,
+        "notes": invariant.notes,
+        "created_at": _iso(invariant.created_at),
+        "updated_at": _iso(invariant.updated_at),
+    }
+
+
+def run_out(run: AnalysisRun) -> dict:
+    return {
+        "id": run.id,
+        "invariant_id": run.invariant_id,
+        "depth": run.depth,
+        "outcome": run.outcome,
+        "reason": run.reason,
+        "trace": run.trace or [],
+        "traces_explored": run.traces_explored,
+        "created_at": _iso(run.created_at),
     }
 
 

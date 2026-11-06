@@ -179,3 +179,80 @@ class Report(Base):
     )
 
     repository: Mapped[Repository] = relationship(back_populates="reports")
+
+
+class ModelState(Base):
+    """A declared state in the analyst's state machine."""
+
+    __tablename__ = "model_states"
+    __table_args__ = (
+        UniqueConstraint("repository_id", "name", name="uq_state_name_per_repo"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    repository_id: Mapped[int] = mapped_column(
+        ForeignKey("repositories.id", ondelete="CASCADE"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(120), nullable=False)
+    kind: Mapped[str] = mapped_column(String(16), default="normal")
+    trust: Mapped[str] = mapped_column(String(16), default="unknown")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class ModelTransition(Base):
+    """A declared (or merely permitted) move between two states."""
+
+    __tablename__ = "model_transitions"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    repository_id: Mapped[int] = mapped_column(
+        ForeignKey("repositories.id", ondelete="CASCADE"), index=True
+    )
+    event: Mapped[str] = mapped_column(String(120), nullable=False)
+    from_state: Mapped[str] = mapped_column(String(120), nullable=False)
+    to_state: Mapped[str] = mapped_column(String(120), nullable=False)
+    cross_boundary: Mapped[bool] = mapped_column(Boolean, default=False)
+    notes: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+
+
+class Invariant(Base):
+    __tablename__ = "invariants"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    repository_id: Mapped[int] = mapped_column(
+        ForeignKey("repositories.id", ondelete="CASCADE"), index=True
+    )
+    name: Mapped[str] = mapped_column(String(300), nullable=False)
+    statement: Mapped[str] = mapped_column(Text, default="")
+    rule_type: Mapped[str] = mapped_column(String(40), default="")
+    event: Mapped[str] = mapped_column(String(120), default="")
+    from_state: Mapped[str] = mapped_column(String(120), default="")
+    to_state: Mapped[str] = mapped_column(String(120), default="")
+    requires_event: Mapped[str] = mapped_column(String(120), default="")
+    severity: Mapped[str] = mapped_column(String(12), default="medium")
+    status: Mapped[str] = mapped_column(String(20), default="draft")
+    notes: Mapped[str] = mapped_column(Text, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
+    )
+
+
+class AnalysisRun(Base):
+    __tablename__ = "analysis_runs"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    repository_id: Mapped[int] = mapped_column(
+        ForeignKey("repositories.id", ondelete="CASCADE"), index=True
+    )
+    invariant_id: Mapped[int | None] = mapped_column(
+        ForeignKey("invariants.id", ondelete="CASCADE"), index=True
+    )
+    depth: Mapped[int] = mapped_column(Integer, default=8)
+    outcome: Mapped[str] = mapped_column(String(20), default="inconclusive")
+    reason: Mapped[str] = mapped_column(Text, default="")
+    trace: Mapped[list] = mapped_column(JSON, default=list)
+    traces_explored: Mapped[int] = mapped_column(Integer, default=0)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow)
