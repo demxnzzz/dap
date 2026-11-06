@@ -2,6 +2,7 @@ import { Link, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout.jsx';
 import { WorkspaceProvider } from './lib/workspace.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import Scan from './pages/Scan.jsx';
 import Targets from './pages/Targets.jsx';
 import Changes from './pages/Changes.jsx';
 import Assets from './pages/Assets.jsx';
@@ -30,6 +31,7 @@ export default function App() {
       <Routes>
         <Route element={<Layout />}>
           <Route index element={<Dashboard />} />
+          <Route path="scan" element={<Scan />} />
           <Route path="targets" element={<Targets />} />
           <Route path="changes" element={<Changes />} />
           <Route path="changes/:commitId" element={<Changes />} />

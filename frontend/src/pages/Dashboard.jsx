@@ -116,8 +116,8 @@ export default function Dashboard() {
           <Link className="btn" to="/changes">
             Review changes
           </Link>
-          <Link className="btn primary" to="/targets">
-            Add target
+          <Link className="btn primary" to="/scan">
+            Scan a repo
           </Link>
         </div>
       </div>
@@ -133,27 +133,28 @@ export default function Dashboard() {
 
       {!repos.length ? (
         <div className="card" style={{ padding: 26, marginBottom: 16 }}>
-          <h2 style={{ margin: '0 0 6px', fontSize: 17 }}>Start a hunting workspace</h2>
+          <h2 style={{ margin: '0 0 6px', fontSize: 17 }}>Point it at a repo</h2>
           <p className="muted" style={{ margin: '0 0 14px', maxWidth: '70ch' }}>
-            Load the seeded demo target to explore commit review, endpoint inventory,
-            SARIF triage and report drafting — or add a real GitHub repository and sync it.
+            Paste a GitHub URL and get the full package in one pass: attack surface,
+            CVSS-scored findings, PoCs and a submission-ready report. Or load the seeded
+            demo to look around first.
           </p>
           <div className="row">
+            <Link className="btn primary" to="/scan">
+              Scan a repo
+            </Link>
             <button
               type="button"
-              className="btn primary"
+              className="btn"
               onClick={loadDemo}
               disabled={busy}
             >
               {busy ? 'Loading demo…' : 'Load demo workspace'}
             </button>
-            <Link className="btn" to="/targets">
-              Add GitHub target
-            </Link>
           </div>
           <p className="hint" style={{ marginTop: 12 }}>
-            Public repositories sync without credentials. Private repos and higher rate
-            limits need a GITHUB_TOKEN secret.
+            Public repositories work without credentials. Private repos need a
+            GITHUB_TOKEN secret.
           </p>
         </div>
       ) : null}

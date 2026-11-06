@@ -3,6 +3,7 @@ import Icon from './Icon.jsx';
 import { useWorkspace } from '../lib/workspace.jsx';
 
 const NAV = [
+  { to: '/scan', label: 'Scan repo', icon: 'search' },
   { to: '/', label: 'Overview', icon: 'dashboard', end: true },
   { to: '/targets', label: 'Targets', icon: 'target' },
   { to: '/changes', label: 'Changes', icon: 'changes' },
@@ -13,6 +14,7 @@ const NAV = [
 ];
 
 const CRUMBS = [
+  ['/scan', 'One-shot scan'],
   ['/targets', 'Targets'],
   ['/changes', 'Commit review'],
   ['/assets', 'Asset inventory'],
