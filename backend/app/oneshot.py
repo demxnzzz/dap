@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session
 
 from .cvss import evaluate
 from .extractors import extract_routes, is_source_file
+from .github_archive import GitHubFetchError, fetch_archive
 from .github_sync import upsert_assets
 from .models import Finding, Report, Repository
 from .queries import repository_counts
@@ -57,34 +58,13 @@ class ScanError(Exception):
         self.status_code = status_code
 
 
-def _client(token: str | None) -> httpx.Client:
-    headers = {
-        "User-Agent": USER_AGENT,
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-    }
-    if token:
-        headers["Authorization"] = f"Bearer {token}"
-    return httpx.Client(headers=headers, timeout=60.0, follow_redirects=True)
-
-
-def _default_branch(client: httpx.Client, owner: str, slug: str) -> str | None:
-    try:
-        response = client.get(f"https://api.github.com/repos/{owner}/{slug}")
-    except httpx.HTTPError as exc:
-        raise ScanError(f"Could not reach GitHub: {exc}", 502)
-    if response.status_code == 200:
-        return (response.json() or {}).get("default_branch") or "main"
-    if response.status_code == 404:
-        raise ScanError(
-            "Repository not found. If it is private, add a GITHUB_TOKEN secret and retry.",
-            404,
-        )
-    if response.status_code in (403, 429):
-        return None  # rate limited — try the usual branch names without metadata
-    if response.status_code in (401, 400):
-        raise ScanError("GitHub rejected the request. Check the repository URL.", response.status_code)
-    return None
+def _client() -> httpx.Client:
+    """Client for non-GitHub hosts (GitLab); it never carries the GitHub token."""
+    return httpx.Client(
+        headers={"User-Agent": USER_AGENT},
+        timeout=60.0,
+        follow_redirects=True,
+    )
 
 
 def _read_archive(client: httpx.Client, url: str) -> bytes | None:
@@ -108,24 +88,18 @@ def _read_archive(client: httpx.Client, url: str) -> bytes | None:
 
 
 def _fetch_github(
-    client: httpx.Client, owner: str, slug: str
+    owner: str, slug: str, token: str | None
 ) -> tuple[dict[str, str], str]:
-    branch = _default_branch(client, owner, slug)
-    for candidate in [name for name in [branch, "main", "master"] if name]:
-        for url in (
-            f"https://codeload.github.com/{owner}/{slug}/tar.gz/refs/heads/{candidate}",
-            f"https://api.github.com/repos/{owner}/{slug}/tarball/{candidate}",
-        ):
-            data = _read_archive(client, url)
-            if data:
-                files = _extract(data)
-                if files:
-                    return files, candidate
-    raise ScanError(
-        "Could not download the repository. Private repositories need a GITHUB_TOKEN "
-        "secret; otherwise check that the URL is public and the branch exists.",
-        502,
-    )
+    try:
+        data, branch = fetch_archive(owner, slug, token)
+    except GitHubFetchError as exc:
+        raise ScanError(exc.message, exc.status_code)
+    files = _extract(data)
+    if not files:
+        raise ScanError(
+            "The repository archive contained no scannable source files.", 422
+        )
+    return files, branch
 
 
 def _fetch_gitlab(
@@ -187,11 +161,11 @@ def _fetch(
     url: str, token: str | None
 ) -> tuple[str, str, str, dict[str, str], str]:
     platform, owner, slug = _split_repo_url(url)
-    with _client(token) as client:
-        if platform == "gitlab":
+    if platform == "gitlab":
+        with _client() as client:
             files, branch = _fetch_gitlab(client, owner, slug)
-        else:
-            files, branch = _fetch_github(client, owner, slug)
+    else:
+        files, branch = _fetch_github(owner, slug, token)
     return platform, owner, slug, files, branch
 
 
@@ -645,6 +619,7 @@ def run_scan(
             "bounty_low": low_total,
             "bounty_high": high_total,
             "platform": platform,
+            "github_auth": "token" if (host == "github" and token) else "anonymous",
         },
         "summary_report_id": summary_report.id,
         "summary_markdown": summary_markdown,
