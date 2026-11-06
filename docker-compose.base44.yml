@@ -1,0 +1,87 @@
+name: dap
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: on-failure
+    environment:
+      POSTGRES_USER: dap
+      POSTGRES_PASSWORD: dap_local_dev
+      POSTGRES_DB: dap
+    volumes:
+      - dap_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dap -d dap"]
+      interval: 3s
+      timeout: 3s
+      retries: 30
+
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: on-failure
+    labels:
+      base44.project: "DAP API"
+      base44.kind: "api"
+      base44.port: "8000"
+    working_dir: /workspace/backend
+    volumes:
+      - ./:/workspace
+    environment:
+      DATABASE_URL: postgresql+psycopg2://dap:dap_local_dev@db:5432/dap
+      PYTHONUNBUFFERED: "1"
+      PYTHONDONTWRITEBYTECODE: "1"
+      BASE44_PREVIEW_MODE: ${BASE44_PREVIEW_MODE:-}
+    env_file:
+      - /run/base44/app.env
+    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload", "--reload-dir", "/workspace/backend"]
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/api/health', timeout=3)\""]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 30s
+
+  web:
+    image: node:22-alpine
+    restart: on-failure
+    labels:
+      base44.project: "DAP Workbench"
+      base44.kind: "web"
+      base44.port: "3000"
+    working_dir: /workspace/frontend
+    volumes:
+      - ./:/workspace
+      - web_node_modules:/workspace/frontend/node_modules
+    environment:
+      API_PROXY_TARGET: http://api:8000
+      BASE44_PREVIEW_MODE: ${BASE44_PREVIEW_MODE:-}
+      BASE44_SANDBOX_HOST_DOMAIN: ${BASE44_SANDBOX_HOST_DOMAIN:-}
+      __VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS: ${__VITE_ADDITIONAL_SERVER_ALLOWED_HOSTS:-}
+    command:
+      - sh
+      - -ec
+      - |
+        npm install --no-audit --no-fund
+        exec npm run dev -- --host 0.0.0.0 --port 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"fetch('http://127.0.0.1:3000/').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))\""]
+      interval: 5s
+      timeout: 4s
+      retries: 12
+      start_period: 60s
+
+volumes:
+  dap_pgdata:
+  web_node_modules:

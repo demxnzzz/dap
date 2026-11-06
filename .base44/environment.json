@@ -1,0 +1,12 @@
+{
+  "previewPort": 3000,
+  "healthPath": "/api/health",
+  "startCommand": "docker compose -f docker-compose.base44.yml up -d --build",
+  "secrets": [
+    {
+      "name": "GITHUB_TOKEN",
+      "description": "Optional. GitHub token with read access for syncing private repositories and raising the API rate limit. Public repos sync without it.",
+      "requiredAtBoot": false
+    }
+  ]
+}
